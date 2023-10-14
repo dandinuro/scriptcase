@@ -35,6 +35,7 @@ RUN apt-get install -y \
     libapache2-mod-php${PHP_VERSION} \
     php${PHP_VERSION}-cli \
     php${PHP_VERSION}-mysql \
+    php${PHP_VERSION}-pgsql \
     php${PHP_VERSION}-curl \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-bcmath \
