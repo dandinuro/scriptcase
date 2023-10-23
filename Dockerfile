@@ -1,26 +1,21 @@
-# Set the base image
-FROM ubuntu:22.04
+# Set the base image to Ubuntu 22.04 (Jammy Jellyfish)
+FROM ubuntu:jammy
 
-# change from /bin/sh to /bin/bash 
-SHELL [ "/bin/bash", "-c" ]
-ENV SHELL=/bin/bash
+# Change from /bin/sh to /bin/bash
+SHELL ["/bin/bash", "-c"]
 
-# Set maintainer label
+# Set maintainer label in lowercase
 LABEL maintainer="Dan Dinu <dan.dinu.ro@gmail.com>"
 
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive \
-    PHP_VERSION=8.1 \
-    SCRIPTCASE_VERSION=9.9.020 \
-#    WORKING_DIR=/var/www/html/ \
-    HTTP_PORT=80 \
-    HTTPS_PORT=443
+# Environment settings
+ARG DEBIAN_FRONTEND=noninteractive
+ENV HTTP_PORT=80
+ENV HTTPS_PORT=443
+ENV PHP_VERSION=8.1
+ENV SCRIPTCASE_VERSION=9.9.020
 
-# make software preparation with update
-RUN apt-get update
-
-# install necessary packages
-RUN apt-get install -y \
+# make software preparation with update and install necessary packages
+RUN apt-get update && apt-get install -y \
     curl \
     nano \
     unzip \
@@ -76,23 +71,43 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # system refresh
 RUN service apache2 restart
- 
+
+# Create a non-root user for running Laravel
+RUN useradd -m -s /bin/bash skipper
+
+# add writing rights over directory /config and /var/www/html for skipper user
+RUN chown -R skipper:skipper /var/www/html
+
+# Add the `www-data` user to the `skipper` group
+RUN usermod -a -G skipper www-data
+
+# Set the ownership of /var/www/html to the `www-data` group
+RUN chown -R :www-data /var/www/html
+
+# Set the permissions to allow the `www-data` group to write
+RUN chmod -R 775 /var/www/html
+
+# Install Laravel globally for the non-root user
+USER skipper
+
 # Download and install Scriptcase
 RUN cd /var/www/html && \
     curl -O https://downloads.scriptcase.net/v9/packs/scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip && \
     unzip scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip && \
     mv scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION} netmake && \
+    rm /var/www/html/index.html && \
+    echo '<html><head><meta http-equiv="refresh" content="0;url=/netmake"></head></html>' > /var/www/html/index.html && \
     rm scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip
-
-# Clean the ebviroment after installing
-RUN apt-get clean -y && \
-    rm -rf /var/lib/apt/lists/*
 
 # create info.php
 RUN echo "<?php phpinfo(); ?>" >> /var/www/html/info.php
 
-# Set working directory
-#WORKDIR ${WORKING_DIR}
+# Switch back to the root user to configure supervisord
+USER root
+
+# Clean the ebviroment after installing
+RUN apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/*
 
 #Expose the ports
 EXPOSE $HTTP_PORT
