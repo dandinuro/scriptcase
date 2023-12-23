@@ -5,7 +5,7 @@ FROM ubuntu:jammy
 SHELL ["/bin/bash", "-c"]
 
 # Set maintainer label in lowercase
-LABEL maintainer="Dan Dinu <dan.dinu.ro@gmail.com>"
+LABEL maintainer="Xavier Despujols <xavier@despujols.org>"
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -16,7 +16,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Environment settings
 ARG DEBIAN_FRONTEND=noninteractive
 ENV HTTP_PORT=80
-ENV HTTPS_PORT=443
 ENV PHP_VERSION=8.1
 ENV SCRIPTCASE_VERSION=9.9.020
 
@@ -89,7 +88,7 @@ RUN chown -R skipper:skipper /var/www/html
 RUN usermod -a -G skipper www-data
 
 # Set the ownership of /var/www/html to the `www-data` group
-RUN chown -R :www-data /var/www/html
+RUN chown -R skipper:www-data /var/www/html
 
 # Set the permissions to allow the `www-data` group to write
 RUN chmod -R 775 /var/www/html
@@ -101,9 +100,9 @@ USER skipper
 RUN cd /var/www/html && \
     curl -O https://downloads.scriptcase.net/v9/packs/scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip && \
     unzip scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip && \
-    mv scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION} netmake && \
+    mv scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION} scriptcase && \
     rm /var/www/html/index.html && \
-    echo '<html><head><meta http-equiv="refresh" content="0;url=/netmake"></head></html>' > /var/www/html/index.html && \
+    echo '<html><head><meta http-equiv="refresh" content="0;url=./scriptcase"></head></html>' > /var/www/html/index.html && \
     rm scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip
 
 # create info.php
