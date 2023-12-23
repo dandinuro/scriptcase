@@ -13,8 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PHP_VERSION=8.1 \
     SCRIPTCASE_VERSION=9.9.020 \
 #    WORKING_DIR=/var/www/html/ \
-    HTTP_PORT=80 \
-    HTTPS_PORT=443
+    HTTP_PORT=80
 
 # make software preparation with update
 RUN apt-get update
@@ -94,10 +93,6 @@ RUN echo "<?php phpinfo(); ?>" >> /var/www/html/info.php
 
 # Set working directory
 #WORKDIR ${WORKING_DIR}
-
-#Expose the ports
-EXPOSE $HTTP_PORT
-EXPOSE $HTTPS_PORT
 
 #Run apache2 in forground
 CMD ["apache2ctl", "-D", "FOREGROUND"]
