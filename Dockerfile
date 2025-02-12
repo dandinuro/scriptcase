@@ -12,7 +12,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV HTTP_PORT=80
 ENV HTTPS_PORT=443
 ENV PHP_VERSION=8.1
-ENV SCRIPTCASE_VERSION=9.9.020
+ENV SCRIPTCASE_VERSION=9.11.017
 
 # make software preparation with update and install necessary packages
 RUN apt-get update && apt-get install -y \
@@ -87,17 +87,17 @@ RUN chown -R :www-data /var/www/html
 # Set the permissions to allow the `www-data` group to write
 RUN chmod -R 775 /var/www/html
 
-# Install Laravel globally for the non-root user
+# Switch to skipper user
 USER skipper
 
-# Download and install Scriptcase
+# Download and install Scriptcase (https://www.scriptcase.net/download/)
 RUN cd /var/www/html && \
-    curl -O https://downloads.scriptcase.net/v9/packs/scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip && \
-    unzip scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip && \
-    mv scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION} netmake && \
+    curl -O https://downloads.scriptcase.net/v9/packs/scriptcase-${SCRIPTCASE_VERSION}-php${PHP_VERSION}.zip && \
+    unzip scriptcase-${SCRIPTCASE_VERSION}-php${PHP_VERSION}.zip && \
+    mv scriptcase-${SCRIPTCASE_VERSION}-php${PHP_VERSION} netmake && \
     rm /var/www/html/index.html && \
     echo '<html><head><meta http-equiv="refresh" content="0;url=/netmake"></head></html>' > /var/www/html/index.html && \
-    rm scriptcase-${SCRIPTCASE_VERSION}-en_us-php${PHP_VERSION}.zip
+    rm scriptcase-${SCRIPTCASE_VERSION}-php${PHP_VERSION}.zip
 
 # create info.php
 RUN echo "<?php phpinfo(); ?>" >> /var/www/html/info.php
