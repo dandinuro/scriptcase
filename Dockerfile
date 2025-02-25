@@ -12,7 +12,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV HTTP_PORT=80
 ENV HTTPS_PORT=443
 ENV PHP_VERSION=8.1
-ENV SCRIPTCASE_VERSION=9.11.017
+ENV SCRIPTCASE_VERSION=9.12.000
 
 # make software preparation with update and install necessary packages
 RUN apt-get update && apt-get install -y \
